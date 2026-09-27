@@ -1,0 +1,462 @@
+{
+  "baseYear": 2026,
+  "incomeTax": {
+    "brackets": [
+      [
+        14000000,
+        0.06
+      ],
+      [
+        50000000,
+        0.15
+      ],
+      [
+        88000000,
+        0.24
+      ],
+      [
+        150000000,
+        0.35
+      ],
+      [
+        300000000,
+        0.38
+      ],
+      [
+        500000000,
+        0.4
+      ],
+      [
+        1000000000,
+        0.42
+      ],
+      [
+        null,
+        0.45
+      ]
+    ],
+    "localRate": 0.1,
+    "pensionDeduction": {
+      "bands": [
+        [
+          3500000,
+          1
+        ],
+        [
+          7000000,
+          0.4
+        ],
+        [
+          14000000,
+          0.2
+        ],
+        [
+          null,
+          0.1
+        ]
+      ],
+      "cap": 9000000
+    }
+  },
+  "financialIncome": {
+    "comprehensiveThreshold": 20000000,
+    "withholdingRate": 0.14,
+    "dividendGrossUpRate": 0.1,
+    "highDividendSpecial": {
+      "startYear": 2026,
+      "endYear": 2029,
+      "brackets": [
+        [
+          20000000,
+          0.14
+        ],
+        [
+          300000000,
+          0.2
+        ],
+        [
+          5000000000,
+          0.25
+        ],
+        [
+          null,
+          0.3
+        ]
+      ]
+    }
+  },
+  "privatePension": {
+    "separateThreshold": 15000000,
+    "excessSeparateRate": 0.15,
+    "ageRates": [
+      [
+        70,
+        0.05
+      ],
+      [
+        80,
+        0.04
+      ],
+      [
+        null,
+        0.03
+      ]
+    ],
+    "deferredRetirementTaxFactors": [
+      [
+        10,
+        0.7
+      ],
+      [
+        20,
+        0.6
+      ],
+      [
+        null,
+        0.5
+      ]
+    ],
+    "minimumStartAge": 55,
+    "withdrawalOrder": {
+      "retirement": [
+        "deferred",
+        "gain"
+      ],
+      "personal": [
+        "excluded",
+        "credited",
+        "gain"
+      ]
+    }
+  },
+  "healthInsurance": {
+    "financialIncomeThreshold": 10000000,
+    "incomeRate": 0.0719,
+    "longTermCareRate": 0.009448,
+    "monthlyFloor": 20160,
+    "monthlyCap": 4591740,
+    "propertyPointPrice": 211.5,
+    "propertyBasicDeduction": 100000000,
+    "propertyBrackets": [
+      [
+        4500000,
+        22
+      ],
+      [
+        9000000,
+        44
+      ],
+      [
+        13500000,
+        66
+      ],
+      [
+        18000000,
+        97
+      ],
+      [
+        22500000,
+        122
+      ],
+      [
+        27000000,
+        146
+      ],
+      [
+        31500000,
+        171
+      ],
+      [
+        36000000,
+        195
+      ],
+      [
+        40500000,
+        219
+      ],
+      [
+        45000000,
+        244
+      ],
+      [
+        50200000,
+        268
+      ],
+      [
+        55900000,
+        294
+      ],
+      [
+        62200000,
+        320
+      ],
+      [
+        69300000,
+        344
+      ],
+      [
+        77100000,
+        365
+      ],
+      [
+        85900000,
+        386
+      ],
+      [
+        95700000,
+        412
+      ],
+      [
+        107000000,
+        439
+      ],
+      [
+        119000000,
+        465
+      ],
+      [
+        133000000,
+        490
+      ],
+      [
+        148000000,
+        516
+      ],
+      [
+        164000000,
+        535
+      ],
+      [
+        183000000,
+        559
+      ],
+      [
+        204000000,
+        586
+      ],
+      [
+        227000000,
+        611
+      ],
+      [
+        253000000,
+        637
+      ],
+      [
+        281000000,
+        659
+      ],
+      [
+        313000000,
+        681
+      ],
+      [
+        349000000,
+        706
+      ],
+      [
+        388000000,
+        731
+      ],
+      [
+        432000000,
+        757
+      ],
+      [
+        481000000,
+        785
+      ],
+      [
+        536000000,
+        812
+      ],
+      [
+        597000000,
+        841
+      ],
+      [
+        665000000,
+        881
+      ],
+      [
+        740000000,
+        921
+      ],
+      [
+        824000000,
+        961
+      ],
+      [
+        918000000,
+        1001
+      ],
+      [
+        1030000000,
+        1041
+      ],
+      [
+        1140000000,
+        1091
+      ],
+      [
+        1270000000,
+        1141
+      ],
+      [
+        1420000000,
+        1191
+      ],
+      [
+        1580000000,
+        1241
+      ],
+      [
+        1760000000,
+        1291
+      ],
+      [
+        1960000000,
+        1341
+      ],
+      [
+        2180000000,
+        1391
+      ],
+      [
+        2420000000,
+        1451
+      ],
+      [
+        2700000000,
+        1511
+      ],
+      [
+        3000000000,
+        1571
+      ],
+      [
+        3300000000,
+        1641
+      ],
+      [
+        3630000000,
+        1711
+      ],
+      [
+        3993000000,
+        1781
+      ],
+      [
+        4392300000,
+        1851
+      ],
+      [
+        4831530000,
+        1921
+      ],
+      [
+        5314680000,
+        1991
+      ],
+      [
+        5846150000,
+        2061
+      ],
+      [
+        6430770000,
+        2131
+      ],
+      [
+        7073850000,
+        2201
+      ],
+      [
+        7781240000,
+        2271
+      ],
+      [
+        null,
+        2341
+      ]
+    ],
+    "rentalMonthlyMultiplier": 40,
+    "rentalAssessmentRate": 0.3,
+    "employmentAndPensionIncomeFactor": 0.5,
+    "incomeLag": {
+      "earlyMonths": 10,
+      "lateMonths": 2,
+      "earlyOtherIncomeYears": 2,
+      "earlyPensionYears": 1,
+      "lateIncomeYears": 1
+    },
+    "monthsPerYear": 12
+  },
+  "schemaVersion": 2,
+  "review": {
+    "effectiveYear": 2026,
+    "reviewedOn": "2026-09-27",
+    "projection": "입력한 기준연도의 세법·보험료 수치를 시뮬레이션의 모든 연도에 고정 적용",
+    "sources": [
+      {
+        "label": "국세청 연금소득·인출순서",
+        "url": "https://www.nts.go.kr/nts/cm/cntnts/cntntsView.do?cntntsId=7885&mi=6605"
+      },
+      {
+        "label": "국세청 연금소득 계산·분리과세",
+        "url": "https://www.nts.go.kr/nts/cm/cntnts/cntntsView.do?cntntsId=7889&mi=6453"
+      },
+      {
+        "label": "국세청 연금 원천징수세율",
+        "url": "https://www.nts.go.kr/nts/cm/cntnts/cntntsView.do?cntntsId=7888&mi=2312"
+      },
+      {
+        "label": "국세청 퇴직소득세 이연",
+        "url": "https://www.nts.go.kr/nts/cm/cntnts/cntntsView.do?cntntsId=7882&mi=6602"
+      },
+      {
+        "label": "국민건강보험공단 보험료율",
+        "url": "https://edi.nhis.or.kr/portal/images/popup/20251204_pop01longdesc.html"
+      },
+      {
+        "label": "국민건강보험공단 2026 제도",
+        "url": "https://www.nhis.or.kr/renewal_popup/poster/20260204_poster_longdesc_1.html"
+      },
+      {
+        "label": "소득세법 제62조 금융소득 비교과세",
+        "url": "https://www.law.go.kr/LSW/lsLawLinkInfo.do?chrClsCd=010202&lsJoLnkSeq=1026638031"
+      },
+      {
+        "label": "국세청 고배당기업 배당 분리과세",
+        "url": "https://nts.go.kr/nts/na/ntt/selectNttInfo.do?mi=2201&nttSn=1349597"
+      },
+      {
+        "label": "건강보험 시행규칙 제44조 소득 평가",
+        "url": "https://www.law.go.kr/lsLinkCommonInfo.do?lsJoLnkSeq=1032724837"
+      },
+      {
+        "label": "건강보험 시행령 별표4 재산 점수표",
+        "url": "https://www.law.go.kr/LSW/flDownload.do?bylClsCd=110201&flSeq=159267255"
+      },
+      {
+        "label": "건강보험 시행규칙 별표8 임차재산",
+        "url": "https://www.law.go.kr/LSW/flDownload.do?bylClsCd=110201&flSeq=160135099&gubun="
+      }
+    ],
+    "notModelled": [
+      "연금수령 개시·가입기간 요건 및 수령한도 초과분 과세(관련 수치도 계산에 적용하지 않음)",
+      "원천별 연금계좌별 실제 가입연차·수령개시연차",
+      "배우자 등 세대별 재산 자동 합산",
+      "미래 법령 변동 자동 전환",
+      "납입 시점의 세액공제 절세액 및 납입한도 판정"
+    ],
+    "checklist": [
+      "baseYear와 review.effectiveYear를 동일한 기준연도로 바꾸고 reviewedOn과 출처를 갱신",
+      "incomeTax.brackets·pensionDeduction·localRate 확인",
+      "financialIncome 기준금액·원천세율·배당가산율·고배당 특례 기간과 구간 확인",
+      "privatePension 연령별 세율·연간 분리과세 기준·퇴직소득세 감면계수·인출순서·최저연금개시연령 확인",
+      "healthInsurance 요율·상하한·금융소득 기준·재산 공제와 점수표·임차재산 평가·소득 반영 시차 확인",
+      "JSON만 바꾼 뒤 대시보드를 열어 기준연도·설명과 대표 시나리오 계산을 대조",
+      "법 적용 구조가 달라졌거나 새 항목이 생겼다면 HTML 계산 코드와 JSON schemaVersion을 함께 변경"
+    ]
+  }
+}

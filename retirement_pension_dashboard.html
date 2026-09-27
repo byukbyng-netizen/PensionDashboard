@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>연금 은퇴 시뮬레이션 대시보드 v7 — 세법/건보 기준</title>
+<style>
+  :root{
+    --bg:#0b1020; --panel:#11182a; --panel2:#162039; --line:#283552; --text:#eef3ff; --muted:#9fb0ce;
+    --accent:#7aa2ff; --accent2:#7fe0c3; --warn:#ffcc7a; --danger:#ff8d8d; --good:#8be2a4; --violet:#c59cff;
+  }
+  *{box-sizing:border-box} body{margin:0;background:linear-gradient(180deg,#09101e,#0d1324);color:var(--text);font-family:Inter,"Pretendard","Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif}
+  .app{display:grid;grid-template-columns:390px 1fr;min-height:100vh}
+  aside{background:rgba(10,16,31,.97);border-right:1px solid var(--line);padding:20px;position:sticky;top:0;height:100vh;overflow:auto}
+  main{padding:24px;min-width:0}
+  h1{font-size:22px;margin:0 0 6px} h2{font-size:16px;margin:24px 0 12px} h3{font-size:14px;margin:0 0 8px}
+  .sub{color:var(--muted);font-size:12px;line-height:1.55}
+  .badge{display:inline-block;padding:3px 8px;border:1px solid var(--line);border-radius:999px;color:#cfe0ff;font-size:11px;margin-top:7px}
+  .control{padding:12px 0;border-bottom:1px dashed #23304b}.row{display:flex;gap:10px;align-items:center}.between{justify-content:space-between}
+  label{font-size:12px;color:#d9e3f8}.value{font-size:12px;color:#d9e3f8;font-variant-numeric:tabular-nums}
+  input[type=number],input[data-unit=man],select{width:100%;background:#0d1528;border:1px solid #2b3959;color:var(--text);border-radius:8px;padding:9px 10px;margin-top:6px}
+  input[type=range]{width:100%;accent-color:#7aa2ff}.mini{font-size:11px;color:var(--muted);line-height:1.5;margin-top:5px}
+  .toggle{display:flex;align-items:center;gap:8px;margin-top:8px}.toggle input{transform:scale(1.1)}
+  button{border:1px solid #334667;background:#15213b;color:#edf3ff;padding:9px 11px;border-radius:9px;cursor:pointer}button:hover{background:#1c2b4b}.btns{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:12px}.card{background:rgba(18,27,48,.94);border:1px solid var(--line);border-radius:14px;padding:14px}.card .k{font-size:11px;color:var(--muted)}.card .v{font-size:20px;font-weight:700;margin-top:7px;font-variant-numeric:tabular-nums}.card .s{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.4}
+  .grid2{display:grid;grid-template-columns:1.3fr 1fr;gap:14px;margin-top:14px}.panel{background:rgba(18,27,48,.92);border:1px solid var(--line);border-radius:14px;padding:14px;min-width:0}.panel-title{display:flex;justify-content:space-between;gap:10px;align-items:flex-end;margin-bottom:10px}.panel-title b{font-size:14px}.panel-title span{font-size:11px;color:var(--muted)}
+  svg{width:100%;height:280px;display:block}.axis{stroke:#33415e;stroke-width:1}.grid{stroke:#21304b;stroke-width:1}.label{fill:#91a3c2;font-size:10px}.lineA{fill:none;stroke:#7aa2ff;stroke-width:3}.lineB{fill:none;stroke:#7fe0c3;stroke-width:2}.lineC{fill:none;stroke:#ffcc7a;stroke-width:2}.lineD{fill:none;stroke:#c59cff;stroke-width:2}.areaA{fill:rgba(122,162,255,.09)}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--muted)}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}
+  .tablewrap{overflow:auto;border-radius:12px;border:1px solid var(--line);margin-top:14px;max-height:650px}table{border-collapse:collapse;width:100%;min-width:2650px;background:#0f1729}th,td{padding:9px 10px;border-bottom:1px solid #24314d;text-align:right;font-size:11px;white-space:nowrap;font-variant-numeric:tabular-nums}th{position:sticky;top:0;background:#17213a;color:#b8c8e5;z-index:2}td:first-child,th:first-child,td:nth-child(2),th:nth-child(2),td.mode,th.mode{text-align:center}tr:hover td{background:#121d33}.neg{color:#ff9f9f}.pos{color:#9ce7b2}.warn{color:#ffd58b}.violet{color:#d9bcff}
+  .notice{margin-top:14px;background:#111b31;border:1px solid #2d3c5e;border-radius:12px;padding:13px;font-size:11px;color:#b9c8e2;line-height:1.7}.notice strong{color:#eef3ff}.sources a{color:#9ec1ff;text-decoration:none}.sources a:hover{text-decoration:underline}
+  .pill{padding:3px 7px;border-radius:999px;font-size:10px;background:#14213b;border:1px solid #304464;color:#bcd0f3}
+  .preview{margin-top:7px;padding:8px;border:1px solid #2b3959;background:#0d1528;border-radius:8px;font-size:11px;color:#bcd0f3;line-height:1.55}
+  .sectionnote{font-size:11px;color:#8fa3c6;margin:-4px 0 6px;line-height:1.5}
+  @media(max-width:1100px){.app{grid-template-columns:1fr}aside{position:relative;height:auto}.grid2{grid-template-columns:1fr}}
+  @media(max-width:620px){main{padding:14px}.cards{grid-template-columns:1fr}.app{display:block}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside>
+  <h1>연금 은퇴 대시보드 v7</h1>
+  <div class="sub"><span id="policySummary">기준 JSON을 불러오는 중입니다.</span> 금액은 직접 입력해 주세요.</div>
+
+  <h2>1. 기본 조건</h2>
+  <div class="control"><label>현재 나이</label><input id="currentAge" type="number" min="40" max="70" value="55"></div>
+  <div class="control"><label>은퇴 나이</label><input id="retireAge" type="number" min="55" max="75" value="65"></div>
+  <h2>2. 퇴직급여 이연 계좌</h2>
+  <div class="sectionnote">회사 퇴직급여가 과세이연되어 들어온 IRP 등을 별도 계좌로 가정합니다. 현재잔액은 원천별로 구분합니다.</div>
+  <div class="control"><label>현재 이연퇴직소득 잔액 (만원)</label><input id="retireDeferred" type="text" inputmode="decimal" data-unit="man" autocomplete="off" value="0"></div>
+  <div class="control"><label>현재 퇴직계좌 운용수익 잔액 (만원)</label><input id="retireGain" type="text" inputmode="decimal" data-unit="man" autocomplete="off" value="0"></div>
+  <div class="control"><label>퇴직 시 추가 이연퇴직급여 입금액 (만원)</label><input id="retireLump" type="text" inputmode="decimal" data-unit="man" autocomplete="off" value="0"></div>
+  <div class="control"><label>원래 퇴직소득세 실효세율 (%)</label><input id="retirementTaxRate" type="number" min="0" max="40" step="0.1" value="0"><div class="mini">퇴직소득세 계산서의 이연세액 ÷ 이연퇴직소득을 입력합니다. 퇴직급여 원금에만 적용합니다.</div></div>
+
+  <h2>3. 개인납입 연금계좌</h2>
+  <div class="sectionnote">연금저축·개인납입 IRP의 잔액을 세액공제 여부와 운용수익으로 구분합니다. 미공제 납입액은 세액공제 확인 자료를 갖춘 금액을 입력하세요.</div>
+  <div class="control"><label>현재 세액공제 받은 납입원금 (만원)</label><input id="personalCredited" type="text" inputmode="decimal" data-unit="man" autocomplete="off" value="0"></div>
+  <div class="control"><label>현재 세액공제 받지 않은 납입원금 (만원)</label><input id="personalExcluded" type="text" inputmode="decimal" data-unit="man" autocomplete="off" value="0"></div>
+  <div class="control"><label>현재 연금계좌 운용수익 잔액 (만원)</label><input id="personalGain" type="text" inputmode="decimal" data-unit="man" autocomplete="off" value="0"></div>
+  <div class="control"><label>은퇴 전 월 세액공제 받는 납입액 (만원)</label><input id="monthlyCredited" type="text" inputmode="decimal" data-unit="man" autocomplete="off" value="0"></div>
+  <div class="control"><label>은퇴 전 월 세액공제 받지 않는 납입액 (만원)</label><input id="monthlyExcluded" type="text" inputmode="decimal" data-unit="man" autocomplete="off" value="0"><div class="mini">납입한도·세액공제 한도 및 근로기간 중 절세액은 별도 계산하지 않습니다.</div></div>
+  <div class="control"><div class="row between"><label>은퇴 전 연 수익률</label><span id="preReturnV" class="value">5.0%</span></div><input id="preReturn" type="range" min="0" max="12" step="0.1" value="5"></div>
+  <div class="control"><div class="row between"><label>은퇴 후 연 수익률</label><span id="postReturnV" class="value">5.0%</span></div><input id="postReturn" type="range" min="0" max="12" step="0.1" value="5"></div>
+  <div class="control"><div class="row between"><label>물가상승률</label><span id="inflationV" class="value">2.0%</span></div><input id="inflation" type="range" min="0" max="6" step="0.1" value="2"></div>
+
+  <h2>4. 은퇴 후 현금흐름</h2>
+  <div class="control"><label>인출 방식</label><select id="withdrawMode"><option value="auto" selected>세후 생활비 부족분 자동 인출</option><option value="fixed">사적연금 월 인출액 고정</option></select></div>
+  <div class="control"><label>목표 월 생활비 (현재가치, 만원)</label><input id="livingMonthly" type="text" inputmode="decimal" data-unit="man" autocomplete="off" value="0"><div class="toggle"><input id="inflateLiving" type="checkbox" checked><label for="inflateLiving">물가만큼 생활비 상승</label></div></div>
+  <div class="control"><label>고정 사적연금 월 인출액 (만원)</label><input id="fixedWithdrawMonthly" type="text" inputmode="decimal" data-unit="man" autocomplete="off" value="0"></div>
+  <div class="control"><label>국민연금 개시 나이</label><input id="npsStartAge" type="number" min="55" max="70" value="65"></div>
+  <div class="control"><label>국민연금 월 수령액 (만원)</label><input id="npsMonthly" type="text" inputmode="decimal" data-unit="man" autocomplete="off" value="0"><div class="mini">입력한 수령액을 그대로 사용합니다. 조기노령연금 감액·연기연금 증액은 자동 계산하지 않습니다.</div></div>
+  <div class="control"><label>국민연금 과세대상 비율 (%)</label><input id="npsTaxableRatio" type="number" min="0" max="100" step="1" value="100"><div class="mini">종합소득세 계산용. 건강보험은 공적연금 총액을 기준으로 별도 평가합니다.</div></div>
+  <div class="control"><label>기타 종합소득금액 (연, 만원)</label><input id="otherIncome" type="text" inputmode="decimal" data-unit="man" autocomplete="off" value="0"><div class="mini">사업·임대·기타소득 등 소득금액을 입력. 현금흐름에도 동일 금액 유입으로 가정합니다.</div></div>
+
+  <h2>5. 금융소득 상세</h2>
+  <div id="financeSectionNote" class="sectionnote">연금계좌 밖의 이자·배당을 입력합니다. 기준금액은 JSON에서 읽습니다.</div>
+  <div class="control"><label>연간 이자소득 (만원)</label><input id="interestIncome" type="text" inputmode="decimal" data-unit="man" autocomplete="off" value="0"></div>
+  <div class="control"><label>Gross-up 대상 국내배당 (만원)</label><input id="dividendGrossUp" type="text" inputmode="decimal" data-unit="man" autocomplete="off" value="0"><div class="mini">내국법인 배당 중 배당가산 대상만 입력. 배당가산율은 JSON에서 읽습니다.</div></div>
+  <div class="control"><label>Gross-up 비대상 배당 (만원)</label><input id="dividendNonGross" type="text" inputmode="decimal" data-unit="man" autocomplete="off" value="0"><div class="mini">해외배당·집합투자기구 분배금 등 배당가산이 적용되지 않는 금액을 입력.</div></div>
+  <div class="control"><label>고배당기업 특례 대상 배당 (만원)</label><input id="highDividendIncome" type="text" inputmode="decimal" data-unit="man" autocomplete="off" value="0"><div class="toggle"><input id="applyHighDividendSpecial" type="checkbox"><label for="applyHighDividendSpecial" id="specialLabel">고배당 분리과세 특례 신청</label></div><div class="mini"><span id="specialPeriod">특례 적용기간을 JSON에서 읽습니다.</span> 이후 연도는 일반 Gross-up 대상 국내배당으로 전환합니다.</div></div>
+  <div id="financePreview" class="preview">금융소득 입력 시 과세구조를 표시합니다.</div>
+
+  <h2>6. 인출·세무 선택</h2>
+  <div class="control"><label>계좌 간 인출 순서</label><select id="accountOrder"><option value="personal" selected>개인납입 계좌 우선</option><option value="retirement">퇴직급여 계좌 우선</option><option value="proportional">두 계좌 잔액 비례</option></select><div class="mini">각 계좌 내에서는 과세제외액, 이연퇴직소득, 과세액 순서로 처리합니다. 실제 한 계좌에 재원이 혼합되어 있다면 이 선택만으로 순서를 바꿀 수 없습니다.</div></div>
+  <div class="control"><label>사적연금 과세 선택</label><select id="privateTaxMode"><option value="auto" selected>자동 — 가능한 종합/분리 중 낮은 세금</option><option value="separate">분리과세 선택</option><option value="comprehensive">종합과세 선택</option></select><div id="privateTaxNote" class="mini">사적연금 세율·기준금액을 JSON에서 읽습니다.</div></div>
+  <div class="control"><label>인적공제 등 종합소득 공제 (연, 만원)</label><input id="personalDeduction" type="text" inputmode="decimal" data-unit="man" autocomplete="off" value="0"></div>
+  <div class="control"><label>기타 종합소득 세액공제 (연, 만원)</label><input id="taxCredit" type="text" inputmode="decimal" data-unit="man" autocomplete="off" value="0"></div>
+
+  <h2>7. 건강보험 · 재산</h2>
+  <div class="control"><label>은퇴 직전 연간 근로소득 (만원)</label><input id="preRetireWage" type="text" inputmode="decimal" data-unit="man" autocomplete="off" value="0"><div class="mini">지역가입 전환 직후 소득자료 반영 시차를 모델링할 때 사용.</div></div>
+  <div class="control"><label>재산보험료 계산 방식</label><select id="propertyMode"><option value="auto" selected>재산세 과세표준으로 자동 계산</option><option value="direct">부과점수 직접 입력</option><option value="none">재산보험료 없음</option></select></div>
+  <div class="control"><label>주택·토지·건축물 등 재산세 과세표준 합계 (만원)</label><input id="propertyTaxBase" type="text" inputmode="decimal" data-unit="man" autocomplete="off" value="0"><div class="mini">시가나 공시가격이 아니라 <b>재산세 과세표준</b> 합계 입력이 가장 정확합니다. 재산 기본공제액은 JSON에서 읽습니다.</div></div>
+  <div class="control"><label>무주택 임차보증금 (만원)</label><input id="rentalDeposit" type="text" inputmode="decimal" data-unit="man" autocomplete="off" value="0"></div>
+  <div class="control"><label>무주택 월세 (월, 만원)</label><input id="rentalMonthly" type="text" inputmode="decimal" data-unit="man" autocomplete="off" value="0"><div class="mini">임차재산 평가식은 JSON에서 읽습니다. 주택을 소유한 경우 임차 입력은 자동 무시합니다.</div></div>
+  <div class="control"><label>건보 인정 주택금융부채 공제액 (만원)</label><input id="housingLoanDeduction" type="text" inputmode="decimal" data-unit="man" autocomplete="off" value="0"><div class="mini">건보공단에서 실제 인정되는 공제액만 입력하세요. 자격·한도 판정은 자동화하지 않습니다.</div></div>
+  <div class="control"><label>재산보험료 부과점수 직접 입력</label><input id="propertyPointsDirect" type="number" min="0" step="1" value="0"></div>
+  <div class="control"><div class="row between"><label>재산 과세표준 연 증가율</label><span id="propertyGrowthV" class="value">0.0%</span></div><input id="propertyGrowth" type="range" min="-5" max="8" step="0.1" value="0"></div>
+  <div class="control"><label>같은 지역가입 세대원의 연간 건보 평가소득 (만원)</label><input id="householdHealthIncome" type="text" inputmode="decimal" data-unit="man" autocomplete="off" value="0"><div class="mini">배우자 등 같은 세대원의 소득이 있으면 건보 평가 후 금액을 직접 입력. 없으면 0.</div></div>
+  <div id="propertyPreview" class="preview">재산정보 입력 시 기준연도 부과점수를 표시합니다.</div>
+  <div class="control"><div class="toggle"><input id="healthLag" type="checkbox" checked><label for="healthLag">건보 소득자료 반영 시차 적용</label></div><div class="toggle"><input id="retireIncomeAdjust" type="checkbox" checked><label for="retireIncomeAdjust">퇴직 후 근로소득 조정·정산 신청 가정</label></div></div>
+
+  <h2>8. 시뮬레이션 범위</h2>
+  <div class="control"><label>마지막 나이</label><input id="endAge" type="number" min="70" max="110" value="90"></div>
+  <div class="control"><label for="rulesFile">세법·건보 기준 JSON 파일</label><input id="rulesFile" type="file" accept=".json,application/json"><div class="mini">웹 서버에서는 같은 폴더의 tax_rules.json을 자동으로 읽습니다. HTML을 직접 열었다면 이 파일을 선택하세요.</div></div>
+  <div class="btns"><button id="resetBtn">기본값 복원</button><button id="csvBtn">CSV 저장</button></div>
+</aside>
+
+<main>
+  <div class="row between" style="align-items:flex-start;gap:18px;flex-wrap:wrap">
+    <div><h1 id="mainTitle" style="font-size:26px">은퇴 기준 연금·종합소득세·건보 시뮬레이션</h1><div class="sub">퇴직급여와 개인납입 연금계좌의 재원을 나눠 입력하고 인출·과세 흐름을 확인합니다.</div></div>
+    <span class="pill" id="statusPill">계산 완료</span>
+  </div>
+
+  <div class="cards" style="margin-top:18px">
+    <div class="card"><div class="k">은퇴 시점 예상 연금자산</div><div id="retireAssetsCard" class="v">-</div><div class="s">두 계좌 납입·운용수익 합계</div></div>
+    <div class="card"><div class="k">마지막 연도 예상 연금자산</div><div id="endAssetsCard" class="v">-</div><div class="s">연금 인출 및 운용수익 반영</div></div>
+    <div class="card"><div class="k">누적 종합소득세</div><div id="compTaxCard" class="v">-</div><div class="s">국세 기준 · 금융 비교과세 포함</div></div>
+    <div class="card"><div class="k">누적 분리과세</div><div id="separateTaxCard" class="v">-</div><div class="s">사적연금·이자배당·퇴직연금 등 국세</div></div>
+    <div class="card"><div class="k">누적 지방소득세</div><div id="localTaxCard" class="v">-</div><div class="s">국세의 지방소득세율을 JSON에서 적용</div></div>
+    <div class="card"><div class="k">누적 건강·장기요양</div><div id="healthCard" class="v">-</div><div class="s">소득 + 재산보험료</div></div>
+    <div class="card"><div class="k">평균 세후 월 현금흐름</div><div id="cashCard" class="v">-</div><div class="s">연금·금융·기타소득 − 세금 − 건보</div></div>
+  </div>
+
+  <div class="grid2">
+    <section class="panel"><div class="panel-title"><b>연금자산 추이</b><span>억원</span></div><svg id="assetChart" viewBox="0 0 760 280" preserveAspectRatio="none"></svg><div class="legend"><span><i class="dot" style="background:#7aa2ff"></i>연말 연금자산</span><span><i class="dot" style="background:#7fe0c3"></i>연간 사적연금 인출액</span></div></section>
+    <section class="panel"><div class="panel-title"><b>연도별 세금·건강보험</b><span>만원/년</span></div><svg id="costChart" viewBox="0 0 600 280" preserveAspectRatio="none"></svg><div class="legend"><span><i class="dot" style="background:#ffcc7a"></i>종합+분리+지방세</span><span><i class="dot" style="background:#7fe0c3"></i>건보+장기요양</span><span><i class="dot" style="background:#c59cff"></i>종합소득세(국세)</span></div></section>
+  </div>
+
+  <div class="tablewrap"><table id="resultTable"><thead><tr>
+    <th>연도</th><th>나이</th><th>연초자산</th><th>운용수익</th><th>사적연금 인출</th><th>미공제 원금</th><th>이연퇴직소득</th><th>공제 원금</th><th>운용수익</th><th>국민연금</th><th>이자·배당</th><th>기타소득</th><th>Gross-up</th><th class="mode">과세모드</th><th>종합소득세<br>(국세)</th><th>분리과세<br>(국세)</th><th>지방소득세</th><th>재산점수</th><th>건강보험</th><th>장기요양</th><th>세후 현금흐름</th><th>월 세후</th><th>목표 생활비</th><th>연말자산</th><th>퇴직계좌 잔액</th><th>개인계좌 잔액</th>
+  </tr></thead><tbody></tbody></table></div>
+
+  <div id="ruleSummary" class="notice">세법·건강보험 기준 JSON을 불러오는 중입니다.</div>
+
+  <div class="notice"><strong>여전히 입력값이 필요한 부분</strong><br>
+    • Gross-up 대상인지 여부는 실제 금융상품에 따라 달라지므로 국내배당을 직접 구분해야 합니다. 해외배당·ETF/펀드 분배금은 상품별 세무자료를 확인하는 것이 가장 정확합니다.<br>
+    • 재산은 <b>시가/공시가격이 아니라 재산세 과세표준</b>을 입력하는 방식으로 설계했습니다. 주택금융부채 공제의 자격·한도는 개인별 사실관계가 필요해 공단 인정액을 직접 입력하도록 했습니다.<br>
+    • 종합소득 공제·세액공제, 외국납부세액공제, 금융상품별 원천징수 예외, 연금수령 개시 요건·연금수령한도·초과 인출의 연금외수령 과세, 신고·납부 시점(통상 다음 해 5월)은 완전 자동화하지 않았습니다. 대시보드는 <b>귀속연도 최종 세부담</b> 관점입니다.<br>
+    • 개인납입 IRP와 퇴직급여가 실제 같은 IRP 계좌에 있으면 법정 인출순서가 계좌 간 선택보다 우선합니다. 이 화면은 분리된 두 계좌를 가정합니다. 연금수령 요건과 한도 내 인출을 전제로 계산하며, 그 요건을 벗어난 경우의 기타소득세·퇴직소득세를 계산하지 않습니다.<br>
+    • 건강보험은 세대 단위이므로 배우자 등 같은 지역가입 세대원의 소득·재산이 있으면 반드시 함께 입력해야 실제 고지액에 가까워집니다.
+  </div>
+
+  <div id="ruleSources" class="notice sources">JSON에 기록된 공식 근거를 불러오는 중입니다.</div>
+</main>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const defaults={
+  currentAge:55,retireAge:65,retireDeferred:0,retireGain:0,retireLump:0,retirementTaxRate:0,
+  personalCredited:0,personalExcluded:0,personalGain:0,monthlyCredited:0,monthlyExcluded:0,
+  preReturn:5,postReturn:5,inflation:2,withdrawMode:'auto',accountOrder:'personal',livingMonthly:0,inflateLiving:true,fixedWithdrawMonthly:0,
+  npsStartAge:65,npsMonthly:0,npsTaxableRatio:100,otherIncome:0,interestIncome:0,dividendGrossUp:0,dividendNonGross:0,
+  highDividendIncome:0,applyHighDividendSpecial:false,privateTaxMode:'auto',personalDeduction:0,taxCredit:0,
+  preRetireWage:0,propertyMode:'auto',propertyTaxBase:0,rentalDeposit:0,rentalMonthly:0,housingLoanDeduction:0,
+  propertyPointsDirect:0,propertyGrowth:0,householdHealthIncome:0,healthLag:true,retireIncomeAdjust:true,endAge:90
+};
+const won=n=>Math.round(n||0).toLocaleString('ko-KR')+'원';
+const uk=n=>(Number(n||0)/1e8).toLocaleString('ko-KR',{maximumFractionDigits:2})+'억';
+const man=n=>(Number(n||0)/1e4).toLocaleString('ko-KR',{maximumFractionDigits:0})+'만';
+const manWon=n=>(Number(n||0)/1e4).toLocaleString('ko-KR',{maximumFractionDigits:4})+'만원';
+function parseMan(text){
+  const value=String(text||'').replaceAll(',','').trim();
+  return value===''?0:Number(value)*10000;
+}
+const num=id=>{const el=$(id);return el?.dataset?.unit==='man'?parseMan(el.value):Number(el?.value||0)};
+const pct=id=>num(id)/100;
+function formatManInput(el){
+  const before=el.value.slice(0,el.selectionStart??el.value.length).replace(/[^0-9.]/g,'').length;
+  let raw=el.value.replace(/[^0-9.]/g,'');
+  const dot=raw.indexOf('.');
+  if(dot>=0)raw=raw.slice(0,dot+1)+raw.slice(dot+1).replaceAll('.','').slice(0,4);
+  const parts=raw.split('.');
+  const whole=(parts[0]||'0').replace(/^0+(?=\d)/,'');
+  el.value=Number(whole).toLocaleString('en-US')+(parts.length>1?'.'+parts[1]:'');
+  let position=0,count=0;
+  while(position<el.value.length&&count<before){if(/[0-9.]/.test(el.value[position]))count++;position++}
+  el.setSelectionRange?.(position,position);
+}
+function displayMan(wonAmount){
+  const units=Math.max(0,Number(wonAmount||0)/10000);
+  return units.toLocaleString('en-US',{maximumFractionDigits:4});
+}
+let rules;
+const baseYear=()=>rules.baseYear;
+const FIN_THRESHOLD=()=>rules.financialIncome.comprehensiveThreshold;
+const HEALTH_FIN_THRESHOLD=()=>rules.healthInsurance.financialIncomeThreshold;
+function bandTax(amount, bands){
+  let tax=0, lower=0;
+  for(const [upper,rate] of bands){
+    const top=upper===null?Infinity:upper;
+    const taxable=Math.max(0,Math.min(amount,top)-lower);
+    tax+=taxable*rate;
+    if(amount<=top)break;
+    lower=top;
+  }
+  return tax;
+}
+
+function pensionDeduction(g){
+  const p=rules.incomeTax.pensionDeduction;
+  return Math.min(p.cap,bandTax(Math.max(0,g),p.bands));
+}
+function basicIncomeTax(base){return bandTax(Math.max(0,base),rules.incomeTax.brackets)}
+function agePensionRate(age){
+  return rules.privatePension.ageRates.find(([upper])=>upper===null||age<upper)[1];
+}
+function highDividendSpecialTax(x){return bandTax(Math.max(0,x),rules.financialIncome.highDividendSpecial.brackets)}
+function financeProfile(year){
+  const interest=num('interestIncome');
+  const baseGross=num('dividendGrossUp');
+  const nonGross=num('dividendNonGross');
+  const high=num('highDividendIncome');
+  const specialOn=$('applyHighDividendSpecial').checked && year>=rules.financialIncome.highDividendSpecial.startYear && year<=rules.financialIncome.highDividendSpecial.endYear;
+  const special=specialOn?high:0;
+  const highOrdinary=high-special;
+  const grossEligible=baseGross+highOrdinary;
+  const ordinary=interest+nonGross+grossEligible;
+  const totalCash=interest+nonGross+baseGross+high;
+  const eligibleExcess=Math.min(grossEligible,Math.max(0,ordinary-FIN_THRESHOLD()));
+  const grossUp=ordinary>FIN_THRESHOLD()?eligibleExcess*rules.financialIncome.dividendGrossUpRate:0;
+  const specialTax=highDividendSpecialTax(special);
+  return {interest,nonGross,grossEligible,ordinary,totalCash,special,specialTax,grossUp,specialOn,healthTotal:totalCash};
+}
+function financialAndComprehensiveTax(year,pensionGross,otherIncome,deduction,taxCredit){
+  const f=financeProfile(year);
+  const pensionIncome=Math.max(0,pensionGross-pensionDeduction(pensionGross));
+  const otherComp=Math.max(0,pensionIncome+otherIncome);
+  const baseNoFinance=Math.max(0,otherComp-deduction);
+  let compNational=0, financeSeparate=0, compareMode='', dividendCredit=0, method1=0, method2=0;
+  if(f.ordinary<=FIN_THRESHOLD()){
+    compNational=Math.max(0,basicIncomeTax(baseNoFinance)-taxCredit);
+    financeSeparate=f.ordinary*rules.financialIncome.withholdingRate;
+    compareMode=f.ordinary>0?`금융≤${krMan(FIN_THRESHOLD())} 분리`:'금융소득 없음';
+  }else{
+    const excess=(f.ordinary-FIN_THRESHOLD())+f.grossUp;
+    const base1=Math.max(0,otherComp+excess-deduction);
+    method1=basicIncomeTax(base1)+FIN_THRESHOLD()*rules.financialIncome.withholdingRate;
+    method2=f.ordinary*rules.financialIncome.withholdingRate+basicIncomeTax(baseNoFinance);
+    const preCredit=Math.max(method1,method2);
+    dividendCredit=Math.min(f.grossUp,preCredit);
+    compNational=Math.max(0,preCredit-dividendCredit-taxCredit);
+    compareMode=method1>=method2?'금융종합·1호식':'금융종합·비교세액';
+  }
+  return {compNational,financeSeparate,highDividendSeparate:f.specialTax,compareMode,grossUp:f.grossUp,dividendCredit,finance:f,method1,method2};
+}
+function taxScenario(year,age,npsGross,withdrawn,pensionYear,privateInComp){
+  const npsTaxable=npsGross*pct('npsTaxableRatio');
+  const retirementPart=withdrawn.deferred;
+  const normalPart=withdrawn.credited+withdrawn.gain;
+  const retirementFactor=rules.privatePension.deferredRetirementTaxFactors.find(([upper])=>upper===null||pensionYear<=upper)[1];
+  const retirementTax=retirementPart*pct('retirementTaxRate')*retirementFactor;
+  const normalSeparate=privateInComp?0:normalPart*(normalPart<=rules.privatePension.separateThreshold?agePensionRate(age):rules.privatePension.excessSeparateRate);
+  const pensionGross=npsTaxable+(privateInComp?normalPart:0);
+  const comp=financialAndComprehensiveTax(year,pensionGross,num('otherIncome'),num('personalDeduction'),num('taxCredit'));
+  const compNational=comp.compNational;
+  const separateNational=retirementTax+normalSeparate+comp.financeSeparate+comp.highDividendSeparate;
+  const national=compNational+separateNational;
+  const local=national*rules.incomeTax.localRate;
+  const pMode=privateInComp?'과세연금 종합':(normalPart>rules.privatePension.separateThreshold?`과세연금 ${percent(rules.privatePension.excessSeparateRate)}분리`:'과세연금 연령별분리');
+  return {national,local,compNational,separateNational,pMode,financeMode:comp.compareMode,grossUp:comp.grossUp,
+    privateTaxable:retirementPart+normalPart,npsTaxable,retirementPart,normalPart,finance:comp.finance};
+}
+function taxForYear(year,age,npsGross,withdrawn,pensionYear){
+  const separate=taxScenario(year,age,npsGross,withdrawn,pensionYear,false);
+  const comprehensive=taxScenario(year,age,npsGross,withdrawn,pensionYear,true);
+  const mode=$('privateTaxMode').value;
+  const chosen=mode==='separate'?separate:mode==='comprehensive'?comprehensive:
+    (separate.national+separate.local<=comprehensive.national+comprehensive.local?separate:comprehensive);
+  chosen.mode=`${chosen.pMode} / ${chosen.financeMode}`;
+  return chosen;
+}
+function accountTotal(a){return Object.values(a).reduce((x,y)=>x+y,0)}
+function totalAssets(accounts){return accountTotal(accounts.retirement)+accountTotal(accounts.personal)}
+function initialAccounts(){return {retirement:{deferred:num('retireDeferred'),gain:num('retireGain')},
+  personal:{excluded:num('personalExcluded'),credited:num('personalCredited'),gain:num('personalGain')}}}
+function accrue(accounts,rate){
+  for(const account of Object.values(accounts))account.gain+=accountTotal(account)*rate;
+}
+function drawAccount(account,amount,order,result){
+  let left=amount;
+  for(const key of order){const used=Math.min(Math.max(0,account[key]),left);account[key]-=used;result[key]+=used;left-=used}
+}
+function allocateWithdrawal(accounts,amount){
+  const a=structuredClone(accounts),out={excluded:0,deferred:0,credited:0,gain:0};
+  const personalFirst=$('accountOrder').value!=='retirement';
+  const personalAmount=$('accountOrder').value==='proportional'&&totalAssets(a)>0?
+    amount*accountTotal(a.personal)/totalAssets(a):personalFirst?Math.min(amount,accountTotal(a.personal)):Math.max(0,amount-accountTotal(a.retirement));
+  drawAccount(a.personal,personalAmount,rules.privatePension.withdrawalOrder.personal,out);
+  drawAccount(a.retirement,amount-personalAmount,rules.privatePension.withdrawalOrder.retirement,out);
+  return {accounts:a,withdrawn:out};
+}
+function propertyPointsFromAmount(amount){
+  if(amount<=0)return 0;
+  for(const [upper,pts] of rules.healthInsurance.propertyBrackets) if(upper===null||amount<=upper)return pts;
+  return rules.healthInsurance.propertyBrackets.at(-1)[1];
+}
+function propertyForYear(year){
+  const mode=$('propertyMode').value;
+  if(mode==='none')return {points:0,netProperty:0,propertyComponent:0,rawProperty:0,rentalEval:0};
+  if(mode==='direct'){
+    const points=Math.max(0,num('propertyPointsDirect'));
+    return {points,netProperty:NaN,propertyComponent:points*rules.healthInsurance.propertyPointPrice*12,rawProperty:NaN,rentalEval:0};
+  }
+  const growth=Math.pow(1+pct('propertyGrowth'),Math.max(0,year-baseYear()));
+  const own=Math.max(0,num('propertyTaxBase')*growth);
+  const rental=own>0?0:Math.max(0,(num('rentalDeposit')+num('rentalMonthly')*rules.healthInsurance.rentalMonthlyMultiplier)*rules.healthInsurance.rentalAssessmentRate*growth);
+  const raw=own+rental;
+  const net=Math.max(0,raw-rules.healthInsurance.propertyBasicDeduction-Math.max(0,num('housingLoanDeduction')));
+  const points=propertyPointsFromAmount(net);
+  return {points,netProperty:net,propertyComponent:points*rules.healthInsurance.propertyPointPrice*12,rawProperty:raw,rentalEval:rental};
+}
+function healthFinanceAmount(total){return total<=HEALTH_FIN_THRESHOLD()?0:total}
+function monthlyAssetFuture(pv,monthlyC,annualR,years){
+  const monthsPerYear=rules.healthInsurance.monthsPerYear;
+  const m=annualR/monthsPerYear,months=Math.max(0,Math.round(years*monthsPerYear));let a=pv;
+  for(let i=0;i<months;i++)a=a*(1+m)+monthlyC;
+  return a;
+}
+function healthAnnual(year,age,idx,records){
+  const {incomeRate:rate,longTermCareRate:ltcRate,monthlyFloor:floor,monthlyCap:cap}=rules.healthInsurance;
+  const prop=propertyForYear(year);
+  function sourceRecord(i){return records[Math.max(0,Math.min(records.length-1,i))]||{wage:0,nps:0,privateTaxable:0,financeHealth:0,other:0,household:0}}
+  const adjust=$('retireIncomeAdjust').checked,lag=$('healthLag').checked;
+  const lagRules=rules.healthInsurance.incomeLag,monthsPerYear=rules.healthInsurance.monthsPerYear;
+  const cur=sourceRecord(idx),pEarlyOther=sourceRecord(idx-lagRules.earlyOtherIncomeYears),pEarlyPension=sourceRecord(idx-lagRules.earlyPensionYears),pLate=sourceRecord(idx-lagRules.lateIncomeYears);
+  const evaluated=(r,suppressWage=false)=>healthFinanceAmount(r.financeHealth)+r.other+r.household+rules.healthInsurance.employmentAndPensionIncomeFactor*((suppressWage?0:r.wage)+r.nps+r.privateTaxable);
+  let annualHealth=0,annualIncomeEval=0;
+  const monthlyProp=prop.points*rules.healthInsurance.propertyPointPrice;
+  if(lag){
+    const suppress=adjust&&age>=num('retireAge');
+    const janOctBase=healthFinanceAmount(pEarlyOther.financeHealth)+pEarlyOther.other+pEarlyOther.household+rules.healthInsurance.employmentAndPensionIncomeFactor*(suppress?0:pEarlyOther.wage)+rules.healthInsurance.employmentAndPensionIncomeFactor*(pEarlyPension.nps+pEarlyPension.privateTaxable);
+    const novDecBase=evaluated(pLate,suppress);
+    const m1Income=janOctBase/monthsPerYear,m2Income=novDecBase/monthsPerYear;
+    const mh1=Math.min(cap,Math.max(floor,m1Income*rate+monthlyProp));
+    const mh2=Math.min(cap,Math.max(floor,m2Income*rate+monthlyProp));
+    annualHealth=mh1*lagRules.earlyMonths+mh2*lagRules.lateMonths;
+    annualIncomeEval=janOctBase*(lagRules.earlyMonths/monthsPerYear)+novDecBase*(lagRules.lateMonths/monthsPerYear);
+  }else{
+    const suppress=adjust&&age>=num('retireAge');
+    const evalAnnual=evaluated(cur,suppress),mIncome=evalAnnual/monthsPerYear;
+    const mh=Math.min(cap,Math.max(floor,mIncome*rate+monthlyProp));
+    annualHealth=mh*monthsPerYear;annualIncomeEval=evalAnnual;
+  }
+  const ltc=annualHealth*(ltcRate/rate);
+  return {health:annualHealth,ltc,points:prop.points,propertyComponent:prop.propertyComponent,netProperty:prop.netProperty,incomeEval:annualIncomeEval};
+}
+function targetLiving(age){
+  const base=num('livingMonthly')*rules.healthInsurance.monthsPerYear;
+  if(!$('inflateLiving').checked)return base;
+  const years=Math.max(0,age-num('currentAge'));
+  return base*Math.pow(1+pct('inflation'),years);
+}
+function financeCashForYear(year){return financeProfile(year).totalCash}
+function makePreRetRecords(){
+  const c=num('currentAge'),r=num('retireAge'),preW=num('preRetireWage'),arr=[];
+  for(let a=c;a<r;a++){
+    const year=baseYear()+(a-c),f=financeProfile(year);
+    arr.push({age:a,year,wage:preW,nps:0,privateTaxable:0,financeHealth:f.healthTotal,other:num('otherIncome'),household:num('householdHealthIncome')});
+  }
+  return arr;
+}
+function solveWithdrawal(year,age,nps,accounts,pensionYear,idx,records){
+  const available=totalAssets(accounts);
+  if($('withdrawMode').value==='fixed')return Math.min(available,num('fixedWithdrawMonthly')*rules.healthInsurance.monthsPerYear);
+  const target=targetLiving(age);let lo=0,hi=Math.max(0,Math.min(available,Math.max(target*3,120000000)));
+  const netFor=w=>{
+    const drawn=allocateWithdrawal(accounts,w).withdrawn;
+    const tx=taxForYear(year,age,nps,drawn,pensionYear),f=financeProfile(year);
+    records[idx]={age,year,wage:0,nps,privateTaxable:tx.privateTaxable,financeHealth:f.healthTotal,other:num('otherIncome'),household:num('householdHealthIncome')};
+    const h=healthAnnual(year,age,idx,records);
+    return w+nps+f.totalCash+num('otherIncome')-tx.national-tx.local-h.health-h.ltc;
+  };
+  while(netFor(hi)<target&&hi<available){hi=Math.min(available,hi*1.5+10000000);if(hi>=available)break}
+  for(let i=0;i<45;i++){const mid=(lo+hi)/2;if(netFor(mid)>=target)hi=mid;else lo=mid}
+  return Math.min(available,hi);
+}
+function updatePreviews(){
+  const f=financeProfile(baseYear());
+  const ordinaryMsg=f.ordinary>FIN_THRESHOLD()?`일반 금융소득 ${manWon(f.ordinary)} → ${krMan(FIN_THRESHOLD())} 초과, 비교과세 대상`:`일반 금융소득 ${manWon(f.ordinary)} → ${krMan(FIN_THRESHOLD())} 이하 분리과세`;
+  const specialMsg=$('applyHighDividendSpecial').checked&&num('highDividendIncome')>0?` · ${baseYear()} 고배당 특례 ${manWon(f.special)} 별도 분리` : '';
+  $('financePreview').innerHTML=`${ordinaryMsg}${specialMsg}<br>현재 입력 기준 Gross-up: <b>${manWon(f.grossUp)}</b> · 건보 금융소득 반영: <b>${manWon(healthFinanceAmount(f.healthTotal))}</b>`;
+  const p=propertyForYear(baseYear());
+  if($('propertyMode').value==='direct') $('propertyPreview').innerHTML=`직접 입력 점수 <b>${p.points.toLocaleString('ko-KR')}점</b> · 재산보험료 성분 월 <b>${manWon(p.points*rules.healthInsurance.propertyPointPrice)}</b>`;
+  else if($('propertyMode').value==='none') $('propertyPreview').innerHTML='재산보험료 없음으로 설정되었습니다.';
+  else $('propertyPreview').innerHTML=`기준연도 평가재산 ${manWon(p.rawProperty)} − 기본공제 ${manWon(rules.healthInsurance.propertyBasicDeduction)} − 인정부채 ${manWon(num('housingLoanDeduction'))}<br>부과대상 재산 <b>${manWon(p.netProperty)}</b> → <b>${p.points.toLocaleString('ko-KR')}점</b> · 재산보험료 성분 월 <b>${manWon(p.points*rules.healthInsurance.propertyPointPrice)}</b>`;
+}
+function clearResults(message){
+  ['retireAssetsCard','endAssetsCard','compTaxCard','separateTaxCard','localTaxCard','healthCard','cashCard'].forEach(id=>$(id).textContent='-');
+  $('resultTable').querySelector('tbody').innerHTML='';
+  $('assetChart').innerHTML='';
+  $('costChart').innerHTML='';
+  window.__rows=[];
+  $('statusPill').textContent=message;
+  $('statusPill').style.color='#ffb3b3';
+}
+function simulate(){
+  const dynamicRetireAge=num('retireAge');
+  $('mainTitle').textContent=`${dynamicRetireAge}세 은퇴 기준 연금·종합소득세·건보 시뮬레이션`;
+  document.title=`${dynamicRetireAge}세 은퇴 기준 연금·종합소득세·건보 시뮬레이션 — ${baseYear()}년 세법/건보 기준`;
+  $('preReturnV').textContent=num('preReturn').toFixed(1)+'%';
+  $('postReturnV').textContent=num('postReturn').toFixed(1)+'%';
+  $('inflationV').textContent=num('inflation').toFixed(1)+'%';
+  $('propertyGrowthV').textContent=num('propertyGrowth').toFixed(1)+'%';
+  updatePreviews();
+  const cAge=num('currentAge'),rAge=num('retireAge'),end=num('endAge');
+  if(rAge<cAge){clearResults('은퇴 나이는 현재 나이 이상이어야 합니다.');return []}
+  if(end<rAge){clearResults('마지막 나이는 은퇴 나이 이상이어야 합니다.');return []}
+  let accounts=initialAccounts();
+  for(let i=0;i<(rAge-cAge)*rules.healthInsurance.monthsPerYear;i++){
+    accrue(accounts,pct('preReturn')/rules.healthInsurance.monthsPerYear);
+    accounts.personal.credited+=num('monthlyCredited');
+    accounts.personal.excluded+=num('monthlyExcluded');
+  }
+  accounts.retirement.deferred+=num('retireLump');
+  const retireAssets=totalAssets(accounts),records=makePreRetRecords(),rows=[];let pensionYear=0;
+  for(let age=rAge;age<=end;age++){
+    pensionYear++;
+    const year=baseYear()+(age-cAge),open=totalAssets(accounts),invest=open*pct('postReturn');
+    accrue(accounts,pct('postReturn'));
+    const nps=age>=num('npsStartAge')?num('npsMonthly')*rules.healthInsurance.monthsPerYear:0,idx=records.length;
+    const withdrawal=solveWithdrawal(year,age,nps,accounts,pensionYear,idx,records);
+    const allocated=allocateWithdrawal(accounts,withdrawal),drawn=allocated.withdrawn;
+    accounts=allocated.accounts;
+    const tx=taxForYear(year,age,nps,drawn,pensionYear),f=financeProfile(year);
+    records[idx]={age,year,wage:0,nps,privateTaxable:tx.privateTaxable,financeHealth:f.healthTotal,other:num('otherIncome'),household:num('householdHealthIncome')};
+    const h=healthAnnual(year,age,idx,records);
+    const gross=withdrawal+nps+f.totalCash+num('otherIncome');
+    const net=gross-tx.national-tx.local-h.health-h.ltc;
+    rows.push({year,age,open,invest,withdrawal,drawn,nps,financeCash:f.totalCash,otherCash:num('otherIncome'),
+      grossUp:tx.grossUp,taxComp:tx.compNational,taxSeparate:tx.separateNational,taxLocal:tx.local,
+      health:h.health,ltc:h.ltc,propertyPoints:h.points,healthIncomeEval:h.incomeEval,net,target:targetLiving(age),
+      end:totalAssets(accounts),retirementEnd:accountTotal(accounts.retirement),personalEnd:accountTotal(accounts.personal),taxMode:tx.mode});
+  }
+  render(rows,retireAssets);return rows;
+}
+function render(rows,retireAssets){
+  const last=rows[rows.length-1]||{};
+  const cumComp=rows.reduce((s,r)=>s+r.taxComp,0),cumSep=rows.reduce((s,r)=>s+r.taxSeparate,0),cumLocal=rows.reduce((s,r)=>s+r.taxLocal,0),cumHealth=rows.reduce((s,r)=>s+r.health+r.ltc,0),avgCash=rows.length?rows.reduce((s,r)=>s+r.net/rules.healthInsurance.monthsPerYear,0)/rows.length:0;
+  $('retireAssetsCard').textContent=uk(retireAssets);$('endAssetsCard').textContent=uk(last.end||0);$('compTaxCard').textContent=uk(cumComp);$('separateTaxCard').textContent=uk(cumSep);$('localTaxCard').textContent=uk(cumLocal);$('healthCard').textContent=uk(cumHealth);$('cashCard').textContent=man(avgCash);
+  const tb=$('resultTable').querySelector('tbody');
+  tb.innerHTML=rows.map(r=>`<tr><td>${r.year}</td><td>${r.age}</td><td>${won(r.open)}</td><td class="pos">${won(r.invest)}</td><td>${won(r.withdrawal)}</td><td>${won(r.drawn.excluded)}</td><td>${won(r.drawn.deferred)}</td><td>${won(r.drawn.credited)}</td><td>${won(r.drawn.gain)}</td><td>${won(r.nps)}</td><td>${won(r.financeCash)}</td><td>${won(r.otherCash)}</td><td class="violet">${won(r.grossUp)}</td><td class="mode">${r.taxMode}</td><td class="warn">${won(r.taxComp)}</td><td class="warn">${won(r.taxSeparate)}</td><td class="warn">${won(r.taxLocal)}</td><td>${r.propertyPoints.toLocaleString('ko-KR')}</td><td>${won(r.health)}</td><td>${won(r.ltc)}</td><td class="${r.net+1<r.target?'neg':'pos'}">${won(r.net)}</td><td class="${r.net+1<r.target?'neg':'pos'}">${won(r.net/rules.healthInsurance.monthsPerYear)}</td><td>${won(r.target/rules.healthInsurance.monthsPerYear)}</td><td>${won(r.end)}</td><td>${won(r.retirementEnd)}</td><td>${won(r.personalEnd)}</td></tr>`).join('');
+  drawLineChart('assetChart',rows,[{key:'end',cls:'lineA',scale:1e8},{key:'withdrawal',cls:'lineB',scale:1e8}],true);
+  drawLineChart('costChart',rows,[{fn:r=>r.taxComp+r.taxSeparate+r.taxLocal,cls:'lineC',scale:1e4},{fn:r=>r.health+r.ltc,cls:'lineB',scale:1e4},{fn:r=>r.taxComp,cls:'lineD',scale:1e4}],false);
+  const short=rows.some(r=>r.net+1000<r.target);const missingRetirementRate=(num('retireDeferred')+num('retireLump')>0)&&num('retirementTaxRate')===0;
+  $('statusPill').textContent=missingRetirementRate?'퇴직소득세율 입력 필요':short?'일부 연도 생활비 부족':'목표 생활비 충족';
+  $('statusPill').style.color=missingRetirementRate||short?'#ffb3b3':'#aaf0bd';
+  window.__rows=rows;
+}
+function drawLineChart(id,rows,series,isAsset){
+  const svg=$(id),W=id==='assetChart'?760:600,H=280,p={l:45,r:14,t:18,b:30};if(!rows.length){svg.innerHTML='';return}
+  const vals=[];series.forEach(s=>rows.forEach(r=>vals.push((s.fn?s.fn(r):r[s.key])/s.scale)));const max=Math.max(...vals,1)*1.12,min=0;
+  const x=i=>p.l+(W-p.l-p.r)*(i/(Math.max(1,rows.length-1))),y=v=>H-p.b-(H-p.t-p.b)*((v-min)/(max-min));
+  let html='';for(let k=0;k<=4;k++){const yy=p.t+(H-p.t-p.b)*k/4,v=max*(1-k/4);html+=`<line class="grid" x1="${p.l}" y1="${yy}" x2="${W-p.r}" y2="${yy}"/><text class="label" x="4" y="${yy+3}">${v.toFixed(isAsset?1:0)}</text>`}
+  [0,Math.floor((rows.length-1)/2),rows.length-1].forEach(i=>{html+=`<text class="label" text-anchor="middle" x="${x(i)}" y="${H-7}">${rows[i].age}세</text>`});
+  series.forEach(s=>{const pts=rows.map((r,i)=>`${x(i)},${y((s.fn?s.fn(r):r[s.key])/s.scale)}`).join(' ');html+=`<polyline class="${s.cls}" points="${pts}"/>`});svg.innerHTML=html;
+}
+function bind(){
+  document.querySelectorAll('input,select').forEach(el=>{
+    if(el.dataset?.unit==='man')el.addEventListener('input',()=>{formatManInput(el);simulate()});
+    else el.addEventListener(el.type==='range'?'input':'change',simulate);
+  });
+  $('resetBtn').addEventListener('click',()=>{for(const[k,v]of Object.entries(defaults)){const el=$(k);if(!el)continue;if(el.type==='checkbox')el.checked=v;else el.value=el.dataset?.unit==='man'?displayMan(v):v}simulate()});
+  $('csvBtn').addEventListener('click',()=>{
+    const rows=window.__rows||[];
+    const heads=['연도','나이','연초자산','운용수익','사적연금인출','미공제원금','이연퇴직소득','공제원금','운용수익','국민연금','이자배당','기타소득','GrossUp','과세모드','종합소득세국세','분리과세국세','지방소득세','재산점수','건강보험','장기요양','세후현금흐름','월세후','목표월생활비','연말자산','퇴직계좌잔액','개인계좌잔액'];
+    const lines=[heads.join(',')];rows.forEach(r=>lines.push([r.year,r.age,r.open,r.invest,r.withdrawal,r.drawn.excluded,r.drawn.deferred,r.drawn.credited,r.drawn.gain,r.nps,r.financeCash,r.otherCash,r.grossUp,'"'+r.taxMode.replaceAll('"','""')+'"',r.taxComp,r.taxSeparate,r.taxLocal,r.propertyPoints,r.health,r.ltc,r.net,r.net/rules.healthInsurance.monthsPerYear,r.target/rules.healthInsurance.monthsPerYear,r.end,r.retirementEnd,r.personalEnd].map((x,i)=>typeof x==='number'?Math.round(x):x).join(',')));
+    const blob=new Blob(['\ufeff'+lines.join('\n')],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='연금은퇴_세금건보_시뮬레이션_v7.csv';a.click();URL.revokeObjectURL(a.href);
+  });
+}
+const krWon=n=>Math.round(n).toLocaleString('ko-KR')+'원';
+const krMan=n=>(n/1e4).toLocaleString('ko-KR',{maximumFractionDigits:2})+'만원';
+const percent=n=>(n*100).toLocaleString('ko-KR',{maximumFractionDigits:4})+'%';
+function validateBands(bands,name){
+  if(!Array.isArray(bands)||!bands.length||bands.at(-1)[0]!==null)throw Error(name+' 마지막 구간은 null이어야 합니다.');
+  let previous=-Infinity;
+  bands.forEach(([upper,value],i)=>{
+    if(upper!==null&&(!Number.isFinite(upper)||upper<=previous))throw Error(name+' 구간 경계가 증가 순서가 아닙니다.');
+    if(!Number.isFinite(value)||value<0)throw Error(name+' 값이 올바르지 않습니다.');
+    if(upper===null&&i!==bands.length-1)throw Error(name+' null 구간은 마지막이어야 합니다.');
+    if(upper!==null)previous=upper;
+  });
+}
+function validateRules(data){
+  if(data?.schemaVersion!==2||data.review?.effectiveYear!==data.baseYear||!Number.isInteger(data.baseYear)||data.baseYear<2000||data.baseYear>2200)throw Error('schemaVersion 2와 baseYear가 필요합니다.');
+  const numeric=[['incomeTax.localRate',data.incomeTax?.localRate],['incomeTax.pensionDeduction.cap',data.incomeTax?.pensionDeduction?.cap],
+    ['financialIncome.comprehensiveThreshold',data.financialIncome?.comprehensiveThreshold],['financialIncome.withholdingRate',data.financialIncome?.withholdingRate],
+    ['financialIncome.dividendGrossUpRate',data.financialIncome?.dividendGrossUpRate],['privatePension.separateThreshold',data.privatePension?.separateThreshold],
+    ['privatePension.excessSeparateRate',data.privatePension?.excessSeparateRate],['privatePension.minimumStartAge',data.privatePension?.minimumStartAge],
+    ['healthInsurance.financialIncomeThreshold',data.healthInsurance?.financialIncomeThreshold],['healthInsurance.incomeRate',data.healthInsurance?.incomeRate],
+    ['healthInsurance.longTermCareRate',data.healthInsurance?.longTermCareRate],['healthInsurance.monthlyFloor',data.healthInsurance?.monthlyFloor],
+    ['healthInsurance.monthlyCap',data.healthInsurance?.monthlyCap],['healthInsurance.propertyPointPrice',data.healthInsurance?.propertyPointPrice],
+    ['healthInsurance.propertyBasicDeduction',data.healthInsurance?.propertyBasicDeduction],['healthInsurance.rentalMonthlyMultiplier',data.healthInsurance?.rentalMonthlyMultiplier],
+    ['healthInsurance.rentalAssessmentRate',data.healthInsurance?.rentalAssessmentRate],['healthInsurance.employmentAndPensionIncomeFactor',data.healthInsurance?.employmentAndPensionIncomeFactor],
+    ['healthInsurance.monthsPerYear',data.healthInsurance?.monthsPerYear]];
+  numeric.forEach(([name,value])=>{if(!Number.isFinite(value)||value<0)throw Error(name+' 값이 필요합니다.');});
+  if(data.healthInsurance.monthlyFloor>data.healthInsurance.monthlyCap)throw Error('건보료 하한이 상한보다 큽니다.');
+  validateBands(data.incomeTax?.brackets,'소득세율');
+  validateBands(data.incomeTax?.pensionDeduction?.bands,'연금소득공제');
+  validateBands(data.financialIncome?.highDividendSpecial?.brackets,'고배당 특례');
+  validateBands(data.privatePension?.ageRates,'연령별 연금세율');
+  validateBands(data.privatePension?.deferredRetirementTaxFactors,'이연퇴직소득 세율계수');
+  validateBands(data.healthInsurance?.propertyBrackets,'재산점수');
+  const special=data.financialIncome.highDividendSpecial,lag=data.healthInsurance.incomeLag;
+  if(!Number.isInteger(special.startYear)||!Number.isInteger(special.endYear)||special.startYear>special.endYear)throw Error('고배당 특례 기간이 올바르지 않습니다.');
+  if(!lag||!['earlyMonths','lateMonths','earlyOtherIncomeYears','earlyPensionYears','lateIncomeYears'].every(k=>Number.isInteger(lag[k])&&lag[k]>=0)||lag.earlyMonths+lag.lateMonths!==data.healthInsurance.monthsPerYear)throw Error('건보 소득 반영 시차가 올바르지 않습니다.');
+  const order=data.privatePension.withdrawalOrder;
+  if(!order||JSON.stringify([...order.retirement].sort())!==JSON.stringify(['deferred','gain'])||JSON.stringify([...order.personal].sort())!==JSON.stringify(['credited','excluded','gain']))throw Error('계좌별 인출순서가 올바르지 않습니다.');
+  if(!data.review||!Array.isArray(data.review.sources))throw Error('review.sources가 필요합니다.');
+}
+function renderRules(){
+  const f=rules.financialIncome,p=rules.privatePension,h=rules.healthInsurance,s=f.highDividendSpecial;
+  $('policySummary').textContent=`${baseYear()}년 기준 세법·건강보험 수치를 미래에도 적용하는 정책 고정 시나리오입니다.`;
+  $('specialLabel').textContent=`${s.startYear}~${s.endYear} 고배당 분리과세 특례 신청`;
+  $('specialPeriod').textContent=`특례는 ${s.startYear}~${s.endYear}년 지급분에 적용됩니다.`;
+  $('retireAge').min=p.minimumStartAge;
+  $('financeSectionNote').textContent=`연금계좌 밖의 이자·배당을 입력합니다. 일반 금융소득 ${krMan(f.comprehensiveThreshold)} 초과 시 비교과세와 배당 Gross-up을 반영합니다.`;
+  $('privateTaxNote').textContent=`과세대상 사적연금 연 ${krMan(p.separateThreshold)} 이하는 연령별 ${p.ageRates.map(x=>percent(x[1])).join(' / ')} 분리과세 또는 종합과세, 초과는 ${percent(p.excessSeparateRate)} 분리과세 또는 종합과세를 선택합니다.`;
+  $('ruleSummary').innerHTML=`<strong>${baseYear()}년 JSON 계산 기준</strong><br>
+    • 일반 금융소득 ${krMan(f.comprehensiveThreshold)} 초과 시 비교과세, 원천세율 ${percent(f.withholdingRate)}, 배당가산 ${percent(f.dividendGrossUpRate)} 적용.<br>
+    • 고배당 특례 ${s.startYear}~${s.endYear}년: 구간별 세율 ${s.brackets.map(x=>percent(x[1])).join(' / ')}. 적용기간 뒤에는 일반 국내배당으로 처리.<br>
+    • 계좌별 인출 순서: 개인납입 계좌 ${p.withdrawalOrder.personal.map(k=>({excluded:'미공제 원금',credited:'공제 원금',gain:'운용수익'})[k]).join(' → ')}; 퇴직급여 계좌 ${p.withdrawalOrder.retirement.map(k=>({deferred:'이연퇴직소득',gain:'운용수익'})[k]).join(' → ')}. 이연퇴직소득의 실제수령연차별 세율계수 ${p.deferredRetirementTaxFactors.map(x=>percent(x[1])).join(' / ')}.<br>
+    • 공제 원금·운용수익의 연간 분리과세 기준 ${krMan(p.separateThreshold)}, 초과 시 선택 분리세율 ${percent(p.excessSeparateRate)}, 연령별 세율 ${p.ageRates.map(x=>percent(x[1])).join(' / ')}.<br>
+    • 건보 금융소득 기준 ${krMan(h.financialIncomeThreshold)} 초과 시 전액 반영. 근로·연금소득 평가율 ${percent(h.employmentAndPensionIncomeFactor)}. 소득 시차 ${h.incomeLag.earlyMonths}개월/${h.incomeLag.lateMonths}개월.<br>
+    • 재산 기본공제 ${krWon(h.propertyBasicDeduction)}, 점수당 ${krWon(h.propertyPointPrice)}, 임차 평가 (보증금 + 월세×${h.rentalMonthlyMultiplier})×${percent(h.rentalAssessmentRate)}.<br>
+    • 건강보험료율 ${percent(h.incomeRate)}, 월 하한 ${krWon(h.monthlyFloor)}·상한 ${krWon(h.monthlyCap)}, 장기요양보험료율 ${percent(h.longTermCareRate)}, 지방소득세율 ${percent(rules.incomeTax.localRate)}.`;
+  const sources=rules.review.sources.filter(x=>x.url?.startsWith('https://')).map(x=>`<a href="${x.url.replaceAll('"','%22')}" target="_blank" rel="noopener noreferrer">${String(x.label).replaceAll('&','&amp;').replaceAll('<','&lt;')}</a>`).join(' · ');
+  $('ruleSources').innerHTML=`<strong>기준 자료</strong> · JSON 검토일 ${String(rules.review.reviewedOn).replaceAll('<','&lt;')}<br>${sources}<br>이 파일의 정책 수치를 미래에 고정 적용합니다. 기준연도를 바꿀 때는 JSON의 출처와 적용기간을 다시 확인하세요.`;
+}
+async function loadRules(data){
+  validateRules(data);
+  rules=data;
+  renderRules();
+  $('statusPill').textContent=`${baseYear()}년 기준 로드 완료`;
+  bindOnce();simulate();
+}
+let bound=false;
+function bindOnce(){if(!bound){bind();bound=true}}
+$('rulesFile').addEventListener('change',async e=>{
+  try{await loadRules(JSON.parse(await e.target.files[0].text()))}
+  catch(err){$('statusPill').textContent='JSON 오류: '+err.message}
+});
+fetch('tax_rules.json').then(r=>{if(!r.ok)throw Error('JSON 파일을 찾을 수 없습니다.');return r.json()}).then(loadRules)
+  .catch(err=>{$('statusPill').textContent='기준 JSON을 선택해 주세요 ('+err.message+')';});
+</script>
+</body>
+</html>
